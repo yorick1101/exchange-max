@@ -3,7 +3,7 @@ package me.yorick.adapter.max;
 public class Application {
 
 	public static void main(String[] args) {
-		MaxWebsocketConnection conn = new MaxWebsocketConnection(null,null);
+		PirvateWebsocketConnection conn = new PirvateWebsocketConnection(null,null);
 		conn.start();
 
 	}
