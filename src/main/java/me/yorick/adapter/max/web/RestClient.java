@@ -44,6 +44,4 @@ public class RestClient {
 	protected Builder authorizedPostBuilder(String body) throws Exception {
 		return buildPrivateRequest(body).post(RequestBody.create(JSON, body));
 	}
-
-
 }

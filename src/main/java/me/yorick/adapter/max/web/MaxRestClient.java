@@ -80,5 +80,31 @@ public class MaxRestClient extends RestClient {
 		}
 	}
 
+	public void getDepth(String market) throws Exception {
+		HttpUrls eurl = HttpUrls.DEPTH;
+		HttpUrl url = eurl.getUrlBuilder().addQueryParameter("market", market).addQueryParameter("limit", "1").build();
+		Request request = new Request.Builder().url(url).build();
+		
+		HttpUtils.getClient().newCall(request).enqueue(new Callback() {
+
+			@Override
+			public void onFailure(Call arg0, IOException arg1) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onResponse(Call call, Response response) throws IOException {
+				if(response.isSuccessful()) {
+					logger.info(response.body().string());
+					HttpUtils.getClient().newCall(request).enqueue(this);
+				}else {
+					logger.error("failed to get depth {},{}",response.code(), response.body().string());
+				}		
+			}
+			
+		});
+		
+	}
 	
 }

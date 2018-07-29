@@ -15,7 +15,8 @@ public class Application {
 		
 		MaxRestClient client = new MaxRestClient(null,null);
 		//client.getOrders("ethtwd");
-		client.postOrder("ethtwd", Side.buy, 13900, 0.1);
+		//client.postOrder("ethtwd", Side.buy, 13900, 0.1);
+		client.getDepth("ethtwd");
 	}
 
 }
