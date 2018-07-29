@@ -1,7 +1,5 @@
 package me.yorick.adapter.max;
 
-
-public class JsonUtils {
-	
-	
+public enum Side {
+sell, buy
 }

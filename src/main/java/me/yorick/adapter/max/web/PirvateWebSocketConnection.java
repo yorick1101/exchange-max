@@ -1,8 +1,5 @@
-package me.yorick.adapter.max;
+package me.yorick.adapter.max.web;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.apache.commons.codec.digest.HmacUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,15 +9,15 @@ import com.jsoniter.output.JsonStream;
 
 import me.yorick.adapter.max.message.ChallengeResponseMessage;
 
-public class PirvateWebsocketConnection extends WebsocketConnection{
+public class PirvateWebSocketConnection extends WebSocketConnection{
 
-	private Logger logger = LoggerFactory.getLogger(PirvateWebsocketConnection.class);
+	private Logger logger = LoggerFactory.getLogger(PirvateWebSocketConnection.class);
 	private enum Status{ Authoriazed, Authorizing, New, UnAuthoriazed};
 	private final String accessKey;
 	private final String secret;
 	protected Status status  = Status.New;
 
-	public PirvateWebsocketConnection(final String accessKey, final String secret) {
+	public PirvateWebSocketConnection(final String accessKey, final String secret) {
 		this.accessKey = accessKey;
 		this.secret=secret;
 	}
@@ -30,16 +27,11 @@ public class PirvateWebsocketConnection extends WebsocketConnection{
 		String msg = any.get("msg").toString();
 		StringBuilder payload = new StringBuilder();
 		payload.append(accessKey).append(msg);
-		String epayload = encrypt(payload.toString());
+		String epayload = HttpUtils.encrypt(secret, payload.toString());
 		ChallengeResponseMessage response = new ChallengeResponseMessage(accessKey);
 		response.setAnswer(epayload);
 		ws.send(JsonStream.serialize(response));
 
-	}
-
-	private String encrypt(String payload) throws Exception {
-		byte[] hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, secret).hmac(payload);
-		return Hex.encodeHexString(hmac);
 	}
 
 	private void checkAuthentication(Any a) {

@@ -1,4 +1,4 @@
-package me.yorick.adapter.max;
+package me.yorick.adapter.max.web;
 
 import org.slf4j.Logger;
 
@@ -7,11 +7,16 @@ import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
-public abstract class WebsocketConnection {
-	protected Logger logger = getLogger();
+public abstract class WebSocketConnection {
+	
 	protected WebSocket ws;
 	
 	private String wsUrl = "wss://max-ws.maicoin.com";
+	
+	protected void setWsUrl(String url) {
+		this.wsUrl=url;
+	}
+	
     
 	public void start() {
 		Request request = new Request.Builder()
@@ -21,33 +26,34 @@ public abstract class WebsocketConnection {
 		HttpUtils.getClient().newWebSocket(request, new WebSocketListener() {
 			@Override
 			public void onOpen(WebSocket webSocket, Response response) {
-				logger.info("client onOpen");
-				logger.info("client request header:" + response.request().headers());
-				logger.info("client response header:" + response.headers());
-				logger.info("client response:" + response);
+				getLogger().info("client onOpen");
+				getLogger().info("client request header:" + response.request().headers());
+				getLogger().info("client response header:" + response.headers());
+				getLogger().info("client response:" + response);
 				ws=webSocket;
 			}
 
 			@Override
 			public void onMessage(WebSocket webSocket, String text) {
-				logger.info("client onMessage");
-				logger.info("message:{}", text);
+				getLogger().info("client onMessage");
+				getLogger().info("message:{}", text);
+				WebSocketConnection.this.onMessage(text);
 			}
 
 
 			@Override
 			public void onClosing(WebSocket webSocket, int code, String reason) {
-				logger.info("client onClosing, code:{} reason:{}" ,code , reason);
+				getLogger().info("client onClosing, code:{} reason:{}" ,code , reason);
 			}
 			@Override
 			public void onClosed(WebSocket webSocket, int code, String reason) {
-				logger.info("client onClosed, code:{} reason:{}" ,code , reason);
+				getLogger().info("client onClosed, code:{} reason:{}" ,code , reason);
 			}
 			@Override
 			public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-				logger.info("client onFailure");
-				logger.info("throwable:" + t);
-				logger.info("response:" + response); 
+				getLogger().info("client onFailure");
+				getLogger().info("throwable:" + t);
+				getLogger().info("response:" + response); 
 			}
 		});
 	}
