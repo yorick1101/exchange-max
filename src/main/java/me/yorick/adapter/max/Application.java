@@ -1,22 +1,13 @@
 package me.yorick.adapter.max;
 
-import me.yorick.adapter.max.web.HomeMarketEventWebSocketConnection;
-import me.yorick.adapter.max.web.MaxRestClient;
+import me.yorick.adapter.max.engine.Engine;
 
 public class Application {
 
 	public static void main(String[] args) throws Exception {
-		//PirvateWebSocketConnection conn = new PirvateWebSocketConnection(null,null);
-		//conn.start();
-		HomeMarketEventWebSocketConnection pconn = new HomeMarketEventWebSocketConnection();
-		pconn.addProduct("ethtwd");
-		//pconn.start();
+		Engine engine = new Engine(null,null);
+		engine.addMarket("ethtwd");
 		
-		
-		MaxRestClient client = new MaxRestClient(null,null);
-		//client.getOrders("ethtwd");
-		//client.postOrder("ethtwd", Side.buy, 13900, 0.1);
-		client.getDepth("ethtwd");
 	}
 
 }
