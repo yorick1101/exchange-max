@@ -7,6 +7,7 @@ import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
 
+import me.yorick.adapter.max.Side;
 import me.yorick.adapter.max.message.ChallengeResponseMessage;
 
 public class PirvateWebSocketConnection extends WebSocketConnection{
@@ -46,10 +47,15 @@ public class PirvateWebSocketConnection extends WebSocketConnection{
 		Any trade = a.get("trade");
 		String tradeId = trade.get("id").toString();
 		double price = trade.get("price").toDouble();
-		String side = trade.get("side").toString();
+		Side side = Side.valueOf(trade.get("side").toString());
 		String market = trade.get("market").toString();
 		String volume = trade.get("volume").toString();
+		boolean isTaker = false;
 		Any order = trade.get(side);
+		if(order == null) {
+			order = trade.get(side.switchSide());
+			isTaker = true;
+		}
 		String orderId = order.get("id").toString();
 		String orderSide = order.get("side").toString();
 		String state = order.get("state").toString();
