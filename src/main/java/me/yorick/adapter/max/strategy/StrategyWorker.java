@@ -32,7 +32,7 @@ public class StrategyWorker implements Runnable{
 				swap();
 				strategy.update();
 			} catch (Exception e) {
-				logger.error("failed to execute update");
+				logger.error("failed to execute update",e);
 			}
 		}
 	}

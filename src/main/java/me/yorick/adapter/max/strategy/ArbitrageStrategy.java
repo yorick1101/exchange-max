@@ -3,11 +3,9 @@ package me.yorick.adapter.max.strategy;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import me.yorick.adapter.max.engine.Engine;
 import me.yorick.adapter.max.type.MarketBookSnapshot;
-import me.yorick.adapter.max.type.Product;
 import me.yorick.adapter.max.types.MarketBook;
 
 public class ArbitrageStrategy implements Strategy{
@@ -15,7 +13,6 @@ public class ArbitrageStrategy implements Strategy{
 	private Logger logger;
 	private final Engine engine;
 	private final HashMap<String, MarketBookSnapshot> snapshots;
-	private final TradingComposition composition;
 	private String a;
 	private String b;
 	private String c;
@@ -23,7 +20,6 @@ public class ArbitrageStrategy implements Strategy{
 	public ArbitrageStrategy(final Engine engine, final TradingComposition composition, final HashMap<String, MarketBookSnapshot> snapshots, final Logger logger) {
 		this.engine = engine;
 		this.snapshots = snapshots;
-		this.composition=composition;
 		this.logger=logger;
 
 		a = composition.getFirst().getId();
@@ -33,22 +29,48 @@ public class ArbitrageStrategy implements Strategy{
 
 	@Override
 	public void update() throws Exception {
-		test(a, b, c);
-		test(c, b, a);
+		test1(a, b, c);
+		test2(c, b, a);
 	}
 
-	private void test(String a1, String b1 , String c1) {
+	
+	private void test2(String a1, String b1 , String c1) {
 		MarketBook abook= snapshots.get(a1).getBook();
 		MarketBook bbook= snapshots.get(b1).getBook();
 		MarketBook cbook= snapshots.get(c1).getBook();
 
+		if(!abook.isAsksValid() || !bbook.isAsksValid()||!cbook.isBidsValid())
+			return;
 		double aAsk = abook.getAsks()[0].getPrice();
-		double bBid = bbook.getBids()[0].getPrice();
-		double cAsk = cbook.getAsks()[0].getPrice();
+		double aAskV = abook.getAsks()[0].getVolume();
+		double bAsk = bbook.getAsks()[0].getPrice();
+		double bAskV = bbook.getAsks()[0].getVolume();
+		double cBid = cbook.getBids()[0].getPrice();
+		double cBidV = cbook.getBids()[0].getVolume();
 
-		double rate = bBid*cAsk/aAsk;
+		double rate = cBid/(aAsk*bAsk);
 		if(rate>1)
-			logger.info("Rate:{} {}:{} {}:{} {};{}", rate, a1,aAsk, b1,bBid, c1, cAsk);
+			logger.info("Rate:{} BUY{}:{}@{} BUY{}:{}@{} SELL{};{}@{}", rate, a1,aAsk,aAskV, b1,bAsk,bAskV, c1, cBid,cBidV);
+
+	}
+	
+	private void test1(String a1, String b1 , String c1) {
+		MarketBook abook= snapshots.get(a1).getBook();
+		MarketBook bbook= snapshots.get(b1).getBook();
+		MarketBook cbook= snapshots.get(c1).getBook();
+
+		if(!abook.isAsksValid() || !bbook.isBidsValid()||!cbook.isBidsValid())
+			return;
+		double aAsk = abook.getAsks()[0].getPrice();
+		double aAskV = abook.getAsks()[0].getVolume();
+		double bBid = bbook.getBids()[0].getPrice();
+		double bBidV = bbook.getBids()[0].getVolume();
+		double cBid = cbook.getBids()[0].getPrice();
+		double cBidV = cbook.getBids()[0].getVolume();
+
+		double rate = (bBid*cBid)/aAsk;
+		if(rate>1)
+			logger.info("Rate:{} BUY{}:{}@{} SELL{}:{}@{} SELL{};{}@{}", rate, a1,aAsk,aAskV, b1,bBid,bBidV, c1, cBid,cBidV);
 
 
 	}

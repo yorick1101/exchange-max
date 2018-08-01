@@ -5,8 +5,8 @@ import me.yorick.adapter.max.types.MarketBook;
 
 public class MarketBookSnapshot {
 	
-	private MarketBook current;
-	private MarketBook update;
+	private MarketBook current=new MarketBook();
+	private MarketBook update=new MarketBook();
 
 	public synchronized void update(LevelInfo[] asks, LevelInfo[] bids) {
 		update.setAsks(asks);

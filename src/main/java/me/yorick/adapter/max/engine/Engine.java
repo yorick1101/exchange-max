@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.yorick.adapter.max.type.MarketBookSnapshot;
-import me.yorick.adapter.max.type.Product;
 import me.yorick.adapter.max.web.MaxRestClient;
 import me.yorick.adapter.max.web.PirvateWebSocketConnection;
 

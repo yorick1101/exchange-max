@@ -5,6 +5,14 @@ public class MarketBook {
 	private LevelInfo[] asks;
 	private LevelInfo[] bids;
 	
+	public boolean isAsksValid() {
+		return asks!=null && asks.length>0;
+	}
+	
+	public boolean isBidsValid() {
+		return bids!=null && bids.length>0;
+	}
+	
 	public LevelInfo[] getAsks() {
 		return asks;
 	}

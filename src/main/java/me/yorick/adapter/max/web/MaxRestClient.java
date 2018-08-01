@@ -104,12 +104,12 @@ public class MaxRestClient extends RestClient {
 			public void onResponse(Call call, Response response) throws IOException {
 				if(response.isSuccessful()) {
 					String market = response.body().string();
-					logger.info(market);
+					//logger.info(market);
 					Any root = JsonIterator.deserialize(market);
 					LevelInfo[] asks=root.get("asks").asList().stream().map(a -> {String[] strs = a.as(String[].class); return new LevelInfo(Double.valueOf(strs[0]), Double.valueOf(strs[1])); }).toArray(size -> new LevelInfo[size]);
 					LevelInfo[] bids=root.get("bids").asList().stream().map(a -> {String[] strs = a.as(String[].class); return new LevelInfo(Double.valueOf(strs[0]), Double.valueOf(strs[1])); }).toArray(size -> new LevelInfo[size]);
 					
-					logger.info("asks/bids {}/{}",asks[0].getPrice(), bids[0].getPrice());
+					//logger.info("asks/bids {}/{}",asks[0].getPrice(), bids[0].getPrice());
 					for(MarketBookSnapshot snapshot : snapshots.values())
 						snapshot.update(asks, bids);
 					if(!interrupt.get())

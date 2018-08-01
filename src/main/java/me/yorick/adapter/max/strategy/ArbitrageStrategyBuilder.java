@@ -56,7 +56,7 @@ public class ArbitrageStrategyBuilder {
 					if(first.getQuote_unit().equals("twd") || second.getQuote_unit().equals("twd")) {
 						Product third = findProduct(idToProduct, first.getQuote_unit(),second.getQuote_unit());
 						if(third!=null) {
-							logger.info("composition: {} {} {}", first.getId(), second.getId(), third.getId());
+							//logger.info("composition: {} {} {}", first.getId(), second.getId(), third.getId());
 							if(first.getQuote_unit().equals("twd"))
 								compositions.add(new TradingComposition(first, second, third));
 							else
