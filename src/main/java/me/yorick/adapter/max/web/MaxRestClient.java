@@ -1,6 +1,7 @@
 package me.yorick.adapter.max.web;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jsoniter.JsonIterator;
@@ -11,7 +12,6 @@ import me.yorick.adapter.max.Side;
 import me.yorick.adapter.max.message.OrderRequestBody;
 import me.yorick.adapter.max.type.MarketBookSnapshot;
 import me.yorick.adapter.max.types.LevelInfo;
-import me.yorick.adapter.max.types.MarketBook;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -86,7 +86,7 @@ public class MaxRestClient extends RestClient {
 		}
 	}
 
-	public AtomicBoolean getDepth(String market, MarketBookSnapshot snapshot) throws Exception {
+	public AtomicBoolean getDepth(String market, Map<Long, MarketBookSnapshot> snapshots) throws Exception {
 		HttpUrls eurl = HttpUrls.DEPTH;
 		HttpUrl url = eurl.getUrlBuilder().addQueryParameter("market", market).addQueryParameter("limit", "1").build();
 		Request request = new Request.Builder().url(url).build();
@@ -110,8 +110,8 @@ public class MaxRestClient extends RestClient {
 					LevelInfo[] bids=root.get("bids").asList().stream().map(a -> {String[] strs = a.as(String[].class); return new LevelInfo(Double.valueOf(strs[0]), Double.valueOf(strs[1])); }).toArray(size -> new LevelInfo[size]);
 					
 					logger.info("asks/bids {}/{}",asks[0].getPrice(), bids[0].getPrice());
-					 
-					snapshot.update(asks, bids);
+					for(MarketBookSnapshot snapshot : snapshots.values())
+						snapshot.update(asks, bids);
 					if(!interrupt.get())
 						HttpUtils.getClient().newCall(request).enqueue(this);
 				}else {

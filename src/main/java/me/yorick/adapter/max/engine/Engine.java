@@ -1,5 +1,6 @@
 package me.yorick.adapter.max.engine;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -8,32 +9,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.yorick.adapter.max.type.MarketBookSnapshot;
+import me.yorick.adapter.max.type.Product;
 import me.yorick.adapter.max.web.MaxRestClient;
 import me.yorick.adapter.max.web.PirvateWebSocketConnection;
 
 public class Engine {
 
-	private Logger logger = LoggerFactory.getLogger(Engine.class);
-	private MaxRestClient restClient;
-	private PirvateWebSocketConnection wsConnection;
-	private Map<String, AtomicBoolean> marketReceiver=new HashMap<>();
-	private Map<String, MarketBookSnapshot> marektbooks=new HashMap<>();
-	
-	public Engine(String apiKey, String secret) {
-		restClient = new MaxRestClient(apiKey, secret);
-		wsConnection = new PirvateWebSocketConnection(apiKey, secret);
-		
+	private final Logger logger = LoggerFactory.getLogger(Engine.class);
+	private final MaxRestClient restClient;
+	private final PirvateWebSocketConnection wsConnection;
+	private final Map<String, AtomicBoolean> marketReceiver=new HashMap<>();
+	private final Map<String, Map<Long, MarketBookSnapshot>> marektbooks=new HashMap<>();
+	private final ProductManager productMgr;
+
+	public Engine(String apiKey, String secret) throws IOException {
+		this.productMgr = new ProductManager();
+		this.restClient = new MaxRestClient(apiKey, secret);
+		this.wsConnection = new PirvateWebSocketConnection(apiKey, secret);
+		//this.wsConnection.start();
 	}
-	
-	public void addMarket(String market) {
-		try {
-			MarketBookSnapshot snapshot = new MarketBookSnapshot();
-			marektbooks.put(market, snapshot);
-			AtomicBoolean interrupt = restClient.getDepth(market, snapshot);
-			marketReceiver.put(market, interrupt);
-		} catch (Exception e) {
-			logger.error("failed to start market receiver",e);
+
+	public ProductManager getProductManager(){
+		return productMgr;
+	}
+
+	public MarketBookSnapshot addMarket(long modelId, String market) {
+		Map<Long, MarketBookSnapshot> cache = marektbooks.computeIfAbsent(market, k->{
+			try {
+				Map<Long, MarketBookSnapshot> newcache = new HashMap<>();
+				AtomicBoolean interrupt = restClient.getDepth(market, newcache);
+				marketReceiver.put(market, interrupt);
+				return newcache;
+			}catch(Exception e) {logger.error("failed to start market receiver {};{}",modelId, market,e);}
+			return null;
+		});
+		MarketBookSnapshot snapshot = cache.get(modelId); 
+		if(snapshot==null) {
+			snapshot = new MarketBookSnapshot();
+			cache.put(modelId, snapshot);	
 		}
+
+		return snapshot;
 	}
-	
+
 }
