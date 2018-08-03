@@ -49,9 +49,26 @@ public class ArbitrageStrategy implements Strategy{
 		double cBidV = cbook.getBids()[0].getVolume();
 
 		double rate = cBid/(aAsk*bAsk);
-		if(rate>1)
-			logger.info("Rate:{} BUY{}:{}@{} BUY{}:{}@{} SELL{};{}@{}", rate, a1,aAsk,aAskV, b1,bAsk,bAskV, c1, cBid,cBidV);
-
+		if(rate>1) {
+			double aQty = aAskV;
+			double bQty = aQty/bAsk;
+			if(bAskV < bQty) {
+				bQty = bAskV;
+				aQty = bQty*bAsk;
+			}
+				
+			double cQty;
+			if(bQty <= cBidV) {
+				cQty = bQty; 
+			}else {
+				//not enough for c
+				cQty = cBidV;
+				bQty = cQty;
+				aQty = bQty*bAsk;
+			}
+			logger.info("Rate1:{} BUY{}:{}@{}@{} BUY{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1,aAsk,aQty,aAskV, b1,bAsk,bQty,bAskV, c1, cBid,cQty, cBidV);
+			
+		}
 	}
 	
 	private void test1(String a1, String b1 , String c1) {
@@ -69,10 +86,22 @@ public class ArbitrageStrategy implements Strategy{
 		double cBidV = cbook.getBids()[0].getVolume();
 
 		double rate = (bBid*cBid)/aAsk;
-		if(rate>1)
-			logger.info("Rate:{} BUY{}:{}@{} SELL{}:{}@{} SELL{};{}@{}", rate, a1,aAsk,aAskV, b1,bBid,bBidV, c1, cBid,cBidV);
-
-
+		if(rate>1) {
+			double aQty = aAskV;
+			double bQty = aQty;
+			if(bBidV < bQty) {
+				bQty = bBidV;
+				aQty = bQty;
+			}
+			
+			double cQty = bQty * bBid;
+			if(cBidV < cQty) {
+				cQty = cBidV;
+				bQty = cQty/bBid;
+				aQty = bQty;
+			}
+			logger.info("Rate:{} BUY{}:{}@{}@{} SELL{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1, aAsk, aQty, aAskV, b1, bBid, bQty, bBidV, c1, cBid, cQty, cBidV);		
+		}
 	}
 
 }
