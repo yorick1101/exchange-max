@@ -11,6 +11,7 @@ import me.yorick.adapter.max.types.MarketBook;
 public class ArbitrageStrategy implements Strategy{
 
 	private Logger logger;
+	private static final double PROFIT = 1.1;
 	private final Engine engine;
 	private final HashMap<String, MarketBookSnapshot> snapshots;
 	private String a;
@@ -49,7 +50,7 @@ public class ArbitrageStrategy implements Strategy{
 		double cBidV = cbook.getBids()[0].getVolume();
 
 		double rate = cBid/(aAsk*bAsk);
-		if(rate>1) {
+		if(rate>PROFIT) {
 			double aQty = aAskV;
 			double bQty = aQty/bAsk;
 			if(bAskV < bQty) {
@@ -86,7 +87,7 @@ public class ArbitrageStrategy implements Strategy{
 		double cBidV = cbook.getBids()[0].getVolume();
 
 		double rate = (bBid*cBid)/aAsk;
-		if(rate>1) {
+		if(rate>PROFIT) {
 			double aQty = aAskV;
 			double bQty = aQty;
 			if(bBidV < bQty) {
