@@ -4,7 +4,7 @@ import okhttp3.HttpUrl;
 
 public enum HttpUrls {
 
-	ORDERS("orders"), ME("members/me"), DEPTH("depth");
+	ORDERS("orders"), ME("members/me"), DEPTH("depth"), ORDERDELETE("order/delete");
 	
 	private HttpUrl.Builder urlBuilder;
 	private String path;

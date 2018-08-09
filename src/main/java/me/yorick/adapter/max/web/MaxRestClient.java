@@ -9,6 +9,7 @@ import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
 
 import me.yorick.adapter.max.Side;
+import me.yorick.adapter.max.message.CancelOrderBody;
 import me.yorick.adapter.max.message.OrderRequestBody;
 import me.yorick.adapter.max.type.MarketBookSnapshot;
 import me.yorick.adapter.max.types.LevelInfo;
@@ -66,7 +67,7 @@ public class MaxRestClient extends RestClient {
 		});
 	}
 	
-	public void postOrder(String market, Side side, double price, double volume) throws Exception {
+	public String postOrder(String market, Side side, double price, double volume) throws Exception {
 		HttpUrls eurl = HttpUrls.ORDERS;
 		OrderRequestBody body = new OrderRequestBody();
 		body.setMarket(market);
@@ -80,10 +81,14 @@ public class MaxRestClient extends RestClient {
 		
 		Response response = HttpUtils.getClient().newCall(request).execute();
 		if(response.isSuccessful()) {
-			logger.info(response.body().string());
+			String resBody= response.body().string();
+			logger.info(resBody);
+			return JsonIterator.deserialize(resBody).get("id").toString();
+			
 		}else {
 			logger.error("failed to create order {},{}",response.code(), response.body().string());
 		}
+		return null;
 	}
 
 	public AtomicBoolean getDepth(String market, Map<Long, MarketBookSnapshot> snapshots) throws Exception {
@@ -121,6 +126,27 @@ public class MaxRestClient extends RestClient {
 			
 		});
 		return interrupt;
+	}
+
+	public boolean cancel(String orderId) throws Exception {
+		HttpUrls eurl = HttpUrls.ORDERDELETE;
+		CancelOrderBody body = new CancelOrderBody();
+		body.setPath(eurl.getPath());
+		body.setId(orderId);
+		String strBody = JsonStream.serialize(body);
+		
+		Request request = authorizedPostBuilder(strBody).url(eurl.getUrl()).build();
+		
+		Response response = HttpUtils.getClient().newCall(request).execute();
+		if(response.isSuccessful()) {
+			response.body().string();
+			return true;
+			
+		}else {
+			logger.error("failed to create order {},{}",response.code(), response.body().string());
+		}
+		return false;
+		
 	}
 	
 }
