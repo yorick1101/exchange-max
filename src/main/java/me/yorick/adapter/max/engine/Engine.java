@@ -51,4 +51,8 @@ public class Engine {
 		return snapshot;
 	}
 
+	public MaxRestClient getMaxRestClient() {
+		return restClient;
+	}
+
 }

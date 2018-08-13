@@ -17,7 +17,6 @@ import me.yorick.adapter.max.type.Product;
 
 public class ArbitrageStrategyBuilder {
 	
-	private Logger logger = LoggerFactory.getLogger(ArbitrageStrategyBuilder.class);
 	private final List<TradingComposition> tradingCompositions;
 	private final Engine engine;
 	private final ExecutorService executor;
@@ -30,17 +29,20 @@ public class ArbitrageStrategyBuilder {
 	
 	public void build() {
 		int index = 1;
+		HashMap<String, MarketBookSnapshot> snapshots = new HashMap<>();
+		List<Strategy> strategies = new ArrayList<>();
 		for(TradingComposition tradingComposition : tradingCompositions) {
-			HashMap<String, MarketBookSnapshot> snapshots = new HashMap<>();
 			for(Product product : tradingComposition.getAll()) {
 				snapshots.put(product.getId(), engine.addMarket(index, product.getId()));
 			}
 			Logger logger = LoggerFactory.getLogger("model-"+index);
 			ArbitrageStrategy strategy = new ArbitrageStrategy(engine, tradingComposition, snapshots, logger);
-			StrategyWorker worker = new StrategyWorker(index, strategy, snapshots, logger);
-			executor.execute(worker);
+			strategies.add(strategy);
 			index++;
 		}
+		StrategyWorker worker = new StrategyWorker(strategies, snapshots);
+		executor.execute(worker);
+		
 	}
 
 
