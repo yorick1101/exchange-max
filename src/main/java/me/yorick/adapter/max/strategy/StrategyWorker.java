@@ -17,7 +17,7 @@ public class StrategyWorker implements Runnable{
 	public StrategyWorker(List<Strategy> strategies, Map<String, MarketBookSnapshot> snapshots) {
 		this.strategies = strategies;
 		this.snapshots = snapshots;
-		logger = LoggerFactory.getLogger("StrategyWorker");
+		logger = LoggerFactory.getLogger(StrategyWorker.class);
 	}
 
 	private void swap() {
@@ -31,6 +31,8 @@ public class StrategyWorker implements Runnable{
 			swap();
 			strategies.stream().forEach(s -> {
 				try {
+					
+					Thread.sleep(500);
 					s.update();
 				} catch (Exception e) {
 					logger.error("failed to execute update for model", e);

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.yorick.adapter.max.engine.Engine;
+import me.yorick.adapter.max.stragtegy.CompositionInfo;
 import me.yorick.adapter.max.type.MarketBookSnapshot;
 import me.yorick.adapter.max.type.Product;
 
@@ -20,9 +21,11 @@ public class ArbitrageStrategyBuilder {
 	private final List<TradingComposition> tradingCompositions;
 	private final Engine engine;
 	private final ExecutorService executor;
+	private final EventListener<CompositionInfo> listener;
 	
-	public ArbitrageStrategyBuilder(Engine engine) {
+	public ArbitrageStrategyBuilder(final Engine engine, final EventListener<CompositionInfo> listener) {
 		this.engine = engine;
+		this.listener = listener;
 		tradingCompositions = findPairs();
 		executor = Executors.newFixedThreadPool(tradingCompositions.size());
 	}
@@ -36,7 +39,7 @@ public class ArbitrageStrategyBuilder {
 				snapshots.put(product.getId(), engine.addMarket(index, product.getId()));
 			}
 			Logger logger = LoggerFactory.getLogger("model-"+index);
-			ArbitrageStrategy strategy = new ArbitrageStrategy(engine, tradingComposition, snapshots, logger);
+			ArbitrageStrategy strategy = new ArbitrageStrategy(index, engine, listener, tradingComposition, snapshots, logger);
 			strategies.add(strategy);
 			index++;
 		}
@@ -81,4 +84,5 @@ public class ArbitrageStrategyBuilder {
 		}
 		return third;
 	}
+
 }

@@ -4,7 +4,9 @@ import java.util.HashMap;
 
 import org.slf4j.Logger;
 
+import me.yorick.adapter.max.Side;
 import me.yorick.adapter.max.engine.Engine;
+import me.yorick.adapter.max.stragtegy.CompositionInfo;
 import me.yorick.adapter.max.type.MarketBookSnapshot;
 import me.yorick.adapter.max.types.MarketBook;
 
@@ -13,19 +15,37 @@ public class ArbitrageStrategy implements Strategy{
 	private Logger logger;
 	private static final double PROFIT = 1.1;
 	private final Engine engine;
+	private final EventListener<CompositionInfo> listener;
 	private final HashMap<String, MarketBookSnapshot> snapshots;
 	private String a;
 	private String b;
 	private String c;
+	
+	private CompositionInfo info1 = new CompositionInfo();
+	private CompositionInfo info2 = new CompositionInfo();
+	
+	private final int id;
 
-	public ArbitrageStrategy(final Engine engine, final TradingComposition composition, final HashMap<String, MarketBookSnapshot> snapshots, final Logger logger) {
+	public ArbitrageStrategy(final int id, final Engine engine, final EventListener<CompositionInfo> listener, final TradingComposition composition, final HashMap<String, MarketBookSnapshot> snapshots, final Logger logger) {
+		this.id = id;
 		this.engine = engine;
+		this.listener = listener;
 		this.snapshots = snapshots;
 		this.logger=logger;
 
 		a = composition.getFirst().getId();
 		b = composition.getSecond().getId();
 		c = composition.getThird().getId();
+		
+		//for test 1
+		info1.setBase(0, Side.buy, a);
+		info1.setBase(1, Side.sell, b);
+		info1.setBase(2, Side.sell, c);
+		
+		//for test 2
+		info2.setBase(0, Side.buy, c);
+		info2.setBase(1, Side.buy, b);
+		info2.setBase(2, Side.sell, a);
 	}
 
 	@Override
@@ -67,9 +87,15 @@ public class ArbitrageStrategy implements Strategy{
 				bQty = cQty;
 				aQty = bQty*bAsk;
 			}
-			logger.info("Rate1:{} BUY{}:{}@{}@{} BUY{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1,aAsk,aQty,aAskV, b1,bAsk,bQty,bAskV, c1, cBid,cQty, cBidV);
 			
-		}
+			logger.info("Rate2:{} BUY{}:{}@{}@{} BUY{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1,aAsk,aQty,aAskV, b1,bAsk,bQty,bAskV, c1, cBid,cQty, cBidV);
+			info1.set(0, aAsk, aQty);
+			info1.set(1, bAsk, bQty);
+			info1.set(2, cBid, cQty);
+			info1.setRate(rate);
+			listener.onEvent(id, info1);
+		}else
+			listener.removeEvent(id);
 	}
 	
 	private void test1(String a1, String b1 , String c1) {
@@ -101,7 +127,14 @@ public class ArbitrageStrategy implements Strategy{
 				bQty = cQty/bBid;
 				aQty = bQty;
 			}
-			logger.info("Rate:{} BUY{}:{}@{}@{} SELL{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1, aAsk, aQty, aAskV, b1, bBid, bQty, bBidV, c1, cBid, cQty, cBidV);		
+			logger.info("Rate1:{} BUY{}:{}@{}@{} SELL{}:{}@{}@{} SELL{};{}@{}@{}", rate, a1, aAsk, aQty, aAskV, b1, bBid, bQty, bBidV, c1, cBid, cQty, cBidV);	
+			info2.set(0, aAsk, aQty);
+			info2.set(1, bBid, bQty);
+			info2.set(2, cBid, cQty);
+			info2.setRate(rate);
+			listener.onEvent(id, info2);
+		}else {
+			listener.removeEvent(id);
 		}
 	}
 
