@@ -25,6 +25,7 @@ public class ArbitrageStrategy implements Strategy{
 	private CompositionInfo info2 = new CompositionInfo();
 	
 	private final int id;
+	private boolean hot = false;
 
 	public ArbitrageStrategy(final int id, final Engine engine, final EventListener<CompositionInfo> listener, final TradingComposition composition, final HashMap<String, MarketBookSnapshot> snapshots, final Logger logger) {
 		this.id = id;
@@ -93,9 +94,14 @@ public class ArbitrageStrategy implements Strategy{
 			info1.set(1, bAsk, bQty);
 			info1.set(2, cBid, cQty);
 			info1.setRate(rate);
+			hot = true;
 			listener.onEvent(id, info1);
-		}else
-			listener.removeEvent(id);
+		}else {
+			if(hot==true) listener.removeEvent(id);
+			hot= false;
+		}
+			
+			
 	}
 	
 	private void test1(String a1, String b1 , String c1) {
@@ -133,8 +139,10 @@ public class ArbitrageStrategy implements Strategy{
 			info2.set(2, cBid, cQty);
 			info2.setRate(rate);
 			listener.onEvent(id, info2);
+			hot = true;
 		}else {
-			listener.removeEvent(id);
+			if(hot==true) listener.removeEvent(id);
+			hot= false;
 		}
 	}
 

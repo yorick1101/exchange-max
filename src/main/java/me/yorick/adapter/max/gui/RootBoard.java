@@ -1,7 +1,6 @@
 package me.yorick.adapter.max.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class RootBoard extends JFrame {
 	public RootBoard() {
 		super("Chances");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(600, 600);
+        this.setSize(605, 650);
         this.setLayout(new BorderLayout());
 		
 		panel = new JPanel();
@@ -42,8 +41,14 @@ public class RootBoard extends JFrame {
 	}
 
 	public void updateChance(int id, CompositionInfo info) {
-		System.out.println("update"+id);
-		boxes.computeIfAbsent(id, k -> {CompositionBox box = new CompositionBox(k); addBox(box);return box;}).update(info);
+		CompositionBox box = boxes.get(id);
+		if(box==null) {
+			box = new CompositionBox(info); 
+			addBox(box);
+			boxes.put(id, box);
+		}else
+			box.update(info);
+	
 	}
 
 	public void remvoeChance(int id) {

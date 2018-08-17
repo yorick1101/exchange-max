@@ -17,8 +17,8 @@ public class Application {
 	private static Logger logger = LoggerFactory.getLogger(Application.class);
 	public static void main(String[] args) throws Exception {
 
-		run();
-		//testGUI();
+		//run();
+		testGUI();
 	}
 
 	private static void run() throws IOException {
@@ -84,7 +84,7 @@ public class Application {
 				CompositionInfo info = create();
 				while(true) {
 					try {
-						Thread.sleep(3000);
+						Thread.sleep(300);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -110,6 +110,7 @@ public class Application {
 		info.set(0, 1, 1.1);
 		info.set(1, 2, 2.2);
 		info.set(2, 3, 3.3);
+		info.setRate(Math.random());
 		return info;
 	}
 
